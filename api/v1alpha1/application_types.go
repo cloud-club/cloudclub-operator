@@ -17,6 +17,7 @@ limitations under the License.
 package v1alpha1
 
 import (
+	v1 "k8s.io/api/core/v1"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
@@ -24,11 +25,14 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 // +kubebuilder:object:generate=true
 type AppSpec struct {
-	Image         string            `json:"image"`
-	ContainerPort int32             `json:"containerPort"`
-	Replicas      int32             `json:"replicas,omitempty"`
-	NodeSelector  map[string]string `json:"nodeSelector,omitempty"`
-	AppType       string            `json:"appType,omitempty"` // back, front-spa, front-srr
+	Image                   string                  `json:"image"`
+	ContainerPort           int32                   `json:"containerPort"`
+	Replicas                *int32                  `json:"replicas,omitempty"`
+	NodeSelector            map[string]string       `json:"nodeSelector,omitempty"`
+	AppType                 string                  `json:"appType,omitempty"` // back, front-spa, front-srr
+	PodDisruptionBudgetSpec PodDisruptionBudgetSpec `json:"podDisruptionBudget,omitempty"`
+	Annotations             map[string]string       `json:"annotations,omitempty"`
+	ContainerName           string                  `json:"containerName"`
 }
 
 type PodDisruptionBudgetSpec struct {
@@ -78,10 +82,14 @@ type IngressPath struct {
 type ApplicationSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	// Foo is an example field of Application. Edit application_types.go to remove/update
-	AppSpec AppSpec     `json:"app"`
-	Service ServiceSpec `json:"service,omitempty"`
-	Ingress IngressSpec `json:"ingress,omitempty"`
+	App                           AppSpec       `json:"app"`
+	Lifecycle                     *v1.Lifecycle `json:"lifecycle,omitempty"`
+	StartupProbe                  *v1.Probe     `json:"startupProbe,omitempty"`
+	LivenessProbe                 *v1.Probe     `json:"livenessProbe,omitempty"`
+	ReadinessProbe                *v1.Probe     `json:"readinessProbe,omitempty"`
+	TerminationGracePeriodSeconds *int64        `json:"terminationGracePeriodSeconds,omitempty"`
+	Service                       ServiceSpec   `json:"service,omitempty"`
+	Ingress                       IngressSpec   `json:"ingress,omitempty"`
 }
 
 // ApplicationStatus defines the observed state of Application
