@@ -54,8 +54,8 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 		}
 		return err
 	}
-	if app.Spec.Replicas != deployment.Spec.Replicas {
-		deployment.Spec.Replicas = app.Spec.Replicas
+	if app.Spec.App.Replicas != deployment.Spec.Replicas {
+		deployment.Spec.Replicas = app.Spec.App.Replicas
 		return a.Kubernetes.Update(ctx, deployment)
 	}
 	return nil
@@ -70,8 +70,9 @@ func (a *ApplicationClient) UpsertService(ctx context.Context, req ctrl.Request,
 			return a.Kubernetes.Create(ctx, newService)
 		}
 	}
-	appServicePort := intstr.IntOrString{IntVal: app.Spec.ServicePort}
+	appServicePort := intstr.IntOrString{IntVal: app.Spec.App.ContainerPort}
 	if service.Spec.Ports[0].TargetPort != appServicePort {
+		service.Spec.Ports[0].Port = app.Spec.App.ContainerPort
 		service.Spec.Ports[0].TargetPort = appServicePort
 		return a.Kubernetes.Update(ctx, service)
 	}
@@ -85,9 +86,9 @@ func (a *ApplicationClient) createNewService(app *appv1alpha1.Application) *core
 			Ports: []corev1.ServicePort{
 				{
 					Name: "http",
-					Port: app.Spec.ServicePort,
+					Port: app.Spec.App.ContainerPort,
 					TargetPort: intstr.IntOrString{
-						IntVal: app.Spec.ServicePort,
+						IntVal: app.Spec.App.ContainerPort,
 					},
 				},
 			},
