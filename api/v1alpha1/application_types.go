@@ -57,9 +57,9 @@ type ServiceSpec struct {
 }
 
 type IngressSpec struct {
-	Enabled          bool              `json:"enabled"`
-	Annotations      map[string]string `json:"annotations,omitempty"`
-	IngressSpecRules IngressSpecRules  `json:"rules"`
+	Enabled     bool              `json:"enabled"`
+	Annotations map[string]string `json:"annotations,omitempty"`
+	Rules       IngressSpecRules  `json:"rules"`
 }
 
 // +kubebuilder:object:generate=true
