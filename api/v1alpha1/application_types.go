@@ -25,14 +25,12 @@ import (
 // NOTE: json tags are required.  Any new fields you add must have json tags for the fields to be serialized.
 // +kubebuilder:object:generate=true
 type AppSpec struct {
-	Image                   string                  `json:"image"`
-	ContainerPort           int32                   `json:"containerPort"`
-	Replicas                *int32                  `json:"replicas,omitempty"`
-	NodeSelector            map[string]string       `json:"nodeSelector,omitempty"`
-	AppType                 string                  `json:"appType,omitempty"` // back, front-spa, front-srr
-	PodDisruptionBudgetSpec PodDisruptionBudgetSpec `json:"podDisruptionBudget,omitempty"`
-	Annotations             map[string]string       `json:"annotations,omitempty"`
-	ContainerName           string                  `json:"containerName"`
+	Image         string            `json:"image"`
+	ContainerPort int32             `json:"containerPort"`
+	Replicas      *int32            `json:"replicas,omitempty"`
+	AppType       string            `json:"appType,omitempty"` // back, front-spa, front-srr
+	Annotations   map[string]string `json:"annotations,omitempty"`
+	ContainerName string            `json:"containerName"`
 }
 
 type PodDisruptionBudgetSpec struct {
@@ -78,18 +76,30 @@ type IngressPath struct {
 	Port *int32 `json:"port,omitempty"`
 }
 
+type ProbeSpec struct {
+	Startup   *v1.Probe `json:"startup,omitempty"`
+	Liveness  *v1.Probe `json:"liveness,omitempty"`
+	Readiness *v1.Probe `json:"readiness,omitempty"`
+}
+
+type SchedulerSpec struct {
+	NodeSelector            map[string]string       `json:"nodeSelector,omitempty"`
+	PodDisruptionBudgetSpec PodDisruptionBudgetSpec `json:"podDisruptionBudget,omitempty"`
+	// TODO: need hpa spec
+	// TODO: need affinity spec
+}
+
 // ApplicationSpec defines the desired state of Application
 type ApplicationSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	App                           AppSpec       `json:"app"`
-	Lifecycle                     *v1.Lifecycle `json:"lifecycle,omitempty"`
-	StartupProbe                  *v1.Probe     `json:"startupProbe,omitempty"`
-	LivenessProbe                 *v1.Probe     `json:"livenessProbe,omitempty"`
-	ReadinessProbe                *v1.Probe     `json:"readinessProbe,omitempty"`
-	TerminationGracePeriodSeconds *int64        `json:"terminationGracePeriodSeconds,omitempty"`
-	Service                       ServiceSpec   `json:"service,omitempty"`
-	Ingress                       IngressSpec   `json:"ingress,omitempty"`
+	App       AppSpec       `json:"app"`
+	Scheduler SchedulerSpec `json:"scheduler,omitempty"`
+	//TODO: need lifecycle spec
+	Probe                         ProbeSpec   `json:"probe,omitempty"`
+	TerminationGracePeriodSeconds *int64      `json:"terminationGracePeriodSeconds,omitempty"`
+	Service                       ServiceSpec `json:"service,omitempty"`
+	Ingress                       IngressSpec `json:"ingress,omitempty"`
 }
 
 // ApplicationStatus defines the observed state of Application
@@ -105,9 +115,8 @@ type ApplicationStatus struct {
 type Application struct {
 	metav1.TypeMeta   `json:",inline"`
 	metav1.ObjectMeta `json:"metadata,omitempty"`
-
-	Spec   ApplicationSpec   `json:"spec,omitempty"`
-	Status ApplicationStatus `json:"status,omitempty"`
+	Spec              ApplicationSpec   `json:"spec,omitempty"`
+	Status            ApplicationStatus `json:"status,omitempty"`
 }
 
 //+kubebuilder:object:root=true
