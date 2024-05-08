@@ -19,8 +19,10 @@ package controllers
 import (
 	"context"
 	cloudclub "github.com/cloud-club/cloudclub-operator/internal"
+	corev1 "k8s.io/api/core/v1"
 
 	appv1alpha1 "github.com/cloud-club/cloudclub-operator/api/v1alpha1"
+	appsv1 "k8s.io/api/apps/v1"
 	"k8s.io/apimachinery/pkg/runtime"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -57,6 +59,9 @@ func (r *ApplicationReconciler) Reconcile(ctx context.Context, req ctrl.Request)
 // SetupWithManager sets up the controller with the Manager.
 func (r *ApplicationReconciler) SetupWithManager(mgr ctrl.Manager) error {
 	return ctrl.NewControllerManagedBy(mgr).
+		//TODO: add ingress,hpa,pdb
 		For(&appv1alpha1.Application{}).
+		Owns(&appsv1.Deployment{}).
+		Owns(&corev1.Service{}).
 		Complete(r)
 }
