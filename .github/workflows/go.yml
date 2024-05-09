@@ -10,12 +10,12 @@ on:
     branches: [ "main" ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-
+      name: Checkout
+      
     - name: Set up Go
       uses: actions/setup-go@v4
       with:
@@ -27,9 +27,3 @@ jobs:
 
     - name: Build
       run: go build -v ./...
-
-    - name: test
-      run: cat Dockerfile
-
-#    - name: Test
-#      run: go test -v ./...

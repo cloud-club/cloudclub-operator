@@ -1,0 +1,27 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Lint On main push&PR
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  check-golang:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    # You may pin to the exact commit or the version.
+    # uses: golangci/golangci-lint-action@a4f60bb28d35aeee14e6880718e0c85ff1882e64
+    - name: Golangci-lint2
+      uses: golangci/golangci-lint-action@v6.0.1
+      with:
+        version: v1.57.2
+        args: --timeout 10m0s --go
+        skip-pkg-cache: true
+      run: git diff --exit-code
