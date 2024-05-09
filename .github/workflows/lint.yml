@@ -12,16 +12,24 @@ on:
 jobs:
   check-golang:
     runs-on: ubuntu-latest
+    name: Golang linter
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+        name: Checkout
+        
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.19'
 
-    # You may pin to the exact commit or the version.
-    # uses: golangci/golangci-lint-action@a4f60bb28d35aeee14e6880718e0c85ff1882e64
-    - name: Golangci-lint2
-      uses: golangci/golangci-lint-action@v6.0.1
-      with:
-        version: v1.57.2
-        args: --timeout 10m0s --go
-        skip-pkg-cache: true
-      run: git diff --exit-code
+      - name: go.mod
+        run: go mod tidy && git diff --exit-code
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v5.3.0
+        with:
+          version: v1.57.2
+          args: --timeout 10m0s
+          # Disable caching as a workaround for https://github.com/golangci/golangci-lint-action/issues/135.
+          # The line can be removed once the golangci-lint issue is resolved.
+          skip-pkg-cache: true
