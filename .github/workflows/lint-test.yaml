@@ -1,13 +1,13 @@
 # This workflow will build a golang project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
 
-name: Lint On main push&PR
+name: lint and testing code
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches-ignore:
+      - main
+      - dev
 
 jobs:
   check-golang:
@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         name: Checkout
-        
+
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
