@@ -3,6 +3,7 @@ package driver
 import (
 	"context"
 	appv1alpha1 "github.com/cloud-club/cloudclub-operator/api/v1alpha1"
+	"github.com/cloud-club/cloudclub-operator/internal/log"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
@@ -23,10 +24,11 @@ func NewApplicationClient(kube client.Client) (*ApplicationClient, error) {
 }
 
 func (a *ApplicationClient) Reconcile(ctx context.Context, req ctrl.Request) (ctrl.Result, error) {
-
+	log.Info("start application reconcile")
 	app := &appv1alpha1.Application{}
 	err := a.Kubernetes.Get(ctx, req.NamespacedName, app)
 	if err != nil {
+		log.Errorf(err)
 		if errors.IsNotFound(err) {
 			return ctrl.Result{}, client.IgnoreNotFound(err)
 		}
@@ -34,19 +36,20 @@ func (a *ApplicationClient) Reconcile(ctx context.Context, req ctrl.Request) (ct
 	}
 
 	if err := a.UpsertDeployment(ctx, req, app); err != nil {
+		log.Errorf(err)
 		return ctrl.Result{}, err
 	}
 
 	if err := a.UpsertService(ctx, req, app); err != nil {
+		log.Errorf(err)
 		return ctrl.Result{}, err
 	}
-
+	log.Info("finish application reconcile")
 	return ctrl.Result{}, nil
 }
 
 func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Request, app *appv1alpha1.Application) error {
 	deployment := &v1.Deployment{}
-	var replicas int32 = 2
 	err := a.Kubernetes.Get(ctx, req.NamespacedName, deployment)
 	if err != nil {
 		if errors.IsNotFound(err) {
@@ -56,7 +59,7 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 					Namespace: req.Namespace,
 				},
 				Spec: v1.DeploymentSpec{
-					Replicas: &replicas,
+					Replicas: app.Spec.App.Replicas,
 					Selector: &metav1.LabelSelector{
 						MatchLabels: map[string]string{
 							"app": req.Name,
@@ -72,7 +75,7 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 							Containers: []corev1.Container{
 								{
 									Name:  req.Name,
-									Image: "nginx:1.7.9",
+									Image: app.Spec.App.Image,
 								},
 							},
 						},
@@ -121,7 +124,9 @@ func (a *ApplicationClient) createNewService(app *appv1alpha1.Application) *core
 					},
 				},
 			},
-			Selector: map[string]string{},
+			Selector: map[string]string{
+				"app": app.Name,
+			},
 		},
 		ObjectMeta: metav1.ObjectMeta{
 			Name:      app.Name,
