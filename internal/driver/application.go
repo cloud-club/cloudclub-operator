@@ -46,10 +46,39 @@ func (a *ApplicationClient) Reconcile(ctx context.Context, req ctrl.Request) (ct
 
 func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Request, app *appv1alpha1.Application) error {
 	deployment := &v1.Deployment{}
+	var replicas int32 = 2
 	err := a.Kubernetes.Get(ctx, req.NamespacedName, deployment)
 	if err != nil {
 		if errors.IsNotFound(err) {
-			newDeployment := &v1.Deployment{}
+			newDeployment := &v1.Deployment{
+				ObjectMeta: metav1.ObjectMeta{
+					Name:      req.Name,
+					Namespace: req.Namespace,
+				},
+				Spec: v1.DeploymentSpec{
+					Replicas: &replicas,
+					Selector: &metav1.LabelSelector{
+						MatchLabels: map[string]string{
+							"app": req.Name,
+						},
+					},
+					Template: corev1.PodTemplateSpec{
+						ObjectMeta: metav1.ObjectMeta{
+							Labels: map[string]string{
+								"app": req.Name,
+							},
+						},
+						Spec: corev1.PodSpec{
+							Containers: []corev1.Container{
+								{
+									Name:  req.Name,
+									Image: "nginx:1.7.9",
+								},
+							},
+						},
+					},
+				},
+			}
 			return a.Kubernetes.Create(ctx, newDeployment)
 		}
 		return err
