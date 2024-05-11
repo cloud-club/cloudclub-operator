@@ -9,4 +9,8 @@ metadata:
     app.kubernetes.io/created-by: cloud-club-operator
   name: application-sample
 spec:
-  # TODO(user): Add fields here
+  app:
+    replicas: 2
+    containerName: nginx
+    image: nginx:latest
+    containerPort: 80
