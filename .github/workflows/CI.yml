@@ -33,3 +33,6 @@ jobs:
           # Disable caching as a workaround for https://github.com/golangci/golangci-lint-action/issues/135.
           # The line can be removed once the golangci-lint issue is resolved.
           skip-pkg-cache: true
+
+      - name: Test with the Go CLI
+        run: go test ./...
