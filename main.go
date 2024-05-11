@@ -18,8 +18,9 @@ package main
 
 import (
 	"flag"
-	cloudclub "github.com/cloud-club/cloudclub-operator/internal"
 	"os"
+
+	cloudclub "github.com/cloud-club/cloudclub-operator/internal"
 
 	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
 	// to ensure that exec-entrypoint and run can make use of them.

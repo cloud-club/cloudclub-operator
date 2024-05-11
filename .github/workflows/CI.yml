@@ -1,0 +1,38 @@
+# This workflow will build a golang project
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
+
+name: Lint On main push&PR
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  check-golang:
+    runs-on: ubuntu-latest
+    name: Golang linter
+    steps:
+      - uses: actions/checkout@v4
+        name: Checkout
+        
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.21'
+
+      - name: go.mod
+        run: go mod tidy && git diff --exit-code
+
+      - name: golangci-lint
+        uses: golangci/golangci-lint-action@v5.3.0
+        with:
+          version: v1.57.2
+          args: --timeout 10m0s
+          # Disable caching as a workaround for https://github.com/golangci/golangci-lint-action/issues/135.
+          # The line can be removed once the golangci-lint issue is resolved.
+          skip-pkg-cache: true
+
+      - name: Test with the Go CLI
+        run: go test ./...
