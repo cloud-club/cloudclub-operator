@@ -14,8 +14,8 @@ RUN --mount=type=cache,target=/go/pkg/mod/ \
         CGO_ENABLED=0  go build -a -o /bin/manager main.go
 
 FROM gcr.io/distroless/static:nonroot
-COPY --from=stage /bin/manager /bin/manager
+COPY --from=stage /bin/manager /manager
 COPY --from=base /usr/share/zoneinfo /usr/share/zoneinfo
 COPY --from=base /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 ENV TZ=Asia/Seoul
-ENTRYPOINT ["/bin/manager"]
+ENTRYPOINT ["/manager"]
