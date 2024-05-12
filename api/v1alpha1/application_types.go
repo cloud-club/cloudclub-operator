@@ -85,8 +85,8 @@ type ProbeSpec struct {
 type SchedulerSpec struct {
 	NodeSelector            map[string]string       `json:"nodeSelector,omitempty"`
 	PodDisruptionBudgetSpec PodDisruptionBudgetSpec `json:"podDisruptionBudget,omitempty"`
+	Affinity                *v1.Affinity            `json:"affinity,omitempty"`
 	// TODO: need hpa spec
-	// TODO: need affinity spec
 }
 
 // ApplicationSpec defines the desired state of Application
