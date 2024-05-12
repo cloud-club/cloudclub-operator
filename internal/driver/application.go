@@ -2,6 +2,7 @@ package driver
 
 import (
 	"context"
+
 	appv1alpha1 "github.com/cloud-club/cloudclub-operator/api/v1alpha1"
 	"github.com/cloud-club/cloudclub-operator/internal/log"
 	v1 "k8s.io/api/apps/v1"
@@ -76,6 +77,24 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 								{
 									Name:  req.Name,
 									Image: app.Spec.App.Image,
+								},
+							},
+							// Node Affinity
+							Affinity: &corev1.Affinity{
+								NodeAffinity: &corev1.NodeAffinity{
+									RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+										NodeSelectorTerms: []corev1.NodeSelectorTerm{
+											{
+												MatchExpressions: []corev1.NodeSelectorRequirement{
+													{
+														Key:      "key",
+														Operator: corev1.NodeSelectorOpIn,
+														Values:   []string{"value"},
+													},
+												},
+											},
+										},
+									},
 								},
 							},
 						},
