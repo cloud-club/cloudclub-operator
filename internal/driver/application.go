@@ -9,6 +9,7 @@ import (
 	corev1 "k8s.io/api/core/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/util/intstr"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
@@ -16,11 +17,13 @@ import (
 
 type ApplicationClient struct {
 	Kubernetes client.Client
+	Schema     *runtime.Scheme
 }
 
-func NewApplicationClient(kube client.Client) (*ApplicationClient, error) {
+func NewApplicationClient(kube client.Client, schema *runtime.Scheme) (*ApplicationClient, error) {
 	return &ApplicationClient{
 		Kubernetes: kube,
+		Schema:     schema,
 	}, nil
 }
 
@@ -58,9 +61,9 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      req.Name,
 					Namespace: req.Namespace,
-					OwnerReferences: []metav1.OwnerReference{
-						*metav1.NewControllerRef(deployment, appv1alpha1.GroupVersion.WithKind("Application")),
-					},
+					// OwnerReferences: []metav1.OwnerReference{
+					// 	*metav1.NewControllerRef(deployment, appv1alpha1.GroupVersion.WithKind("Application")),
+					// },
 				},
 				Spec: v1.DeploymentSpec{
 					Replicas: app.Spec.App.Replicas,
@@ -86,6 +89,7 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 					},
 				},
 			}
+			ctrl.SetControllerReference(app, newDeployment, a.Schema)
 			return a.Kubernetes.Create(ctx, newDeployment)
 		}
 		return err
