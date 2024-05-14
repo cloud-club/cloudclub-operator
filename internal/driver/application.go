@@ -2,6 +2,7 @@ package driver
 
 import (
 	"context"
+
 	appv1alpha1 "github.com/cloud-club/cloudclub-operator/api/v1alpha1"
 	"github.com/cloud-club/cloudclub-operator/internal/log"
 	v1 "k8s.io/api/apps/v1"
@@ -9,6 +10,7 @@ import (
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/util/intstr"
+	"k8s.io/utils/pointer"
 	ctrl "sigs.k8s.io/controller-runtime"
 	"sigs.k8s.io/controller-runtime/pkg/client"
 )
@@ -57,6 +59,15 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 				ObjectMeta: metav1.ObjectMeta{
 					Name:      req.Name,
 					Namespace: req.Namespace,
+					OwnerReferences: []metav1.OwnerReference{
+						{
+							APIVersion: app.APIVersion,
+							Kind:       app.Kind,
+							Name:       app.Name,
+							UID:        app.UID,
+							Controller: pointer.Bool(true),
+						},
+					},
 				},
 				Spec: v1.DeploymentSpec{
 					Replicas: app.Spec.App.Replicas,
