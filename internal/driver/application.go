@@ -83,6 +83,7 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 								{
 									Name:  req.Name,
 									Image: app.Spec.App.Image,
+									Lifecycle: app.Spec.App.LifeCycle,
 								},
 							},
 						},

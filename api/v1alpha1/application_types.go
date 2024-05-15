@@ -31,6 +31,7 @@ type AppSpec struct {
 	AppType       string            `json:"appType,omitempty"` // back, front-spa, front-srr
 	Annotations   map[string]string `json:"annotations,omitempty"`
 	ContainerName string            `json:"containerName"`
+	LifeCycle     *v1.Lifecycle		`json:"lifeCycle"`
 }
 
 type PodDisruptionBudgetSpec struct {
@@ -95,7 +96,6 @@ type ApplicationSpec struct {
 	// Important: Run "make" to regenerate code after modifying this file
 	App       AppSpec       `json:"app"`
 	Scheduler SchedulerSpec `json:"scheduler,omitempty"`
-	//TODO: need lifecycle spec
 	Probe                         ProbeSpec   `json:"probe,omitempty"`
 	TerminationGracePeriodSeconds *int64      `json:"terminationGracePeriodSeconds,omitempty"`
 	Service                       ServiceSpec `json:"service,omitempty"`
