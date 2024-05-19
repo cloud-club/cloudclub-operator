@@ -79,36 +79,44 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 									Image: app.Spec.App.Image,
 								},
 							},
-							// Node Affinity
-							Affinity: &corev1.Affinity{
-								NodeAffinity: &corev1.NodeAffinity{
-									RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
-										NodeSelectorTerms: []corev1.NodeSelectorTerm{
-											{
-												MatchExpressions: []corev1.NodeSelectorRequirement{
-													{
-														Key:      "key",
-														Operator: corev1.NodeSelectorOpIn,
-														Values:   []string{"value"},
-													},
-												},
-											},
+						},
+					},
+				},
+			}
+			// affinity 설정이 존재하면 새로운 deployment에 추가
+			if app.Spec.Scheduler.Affinity != nil {
+				newDeployment.Spec.Template.Spec.Affinity = app.Spec.Scheduler.Affinity
+			} else {
+				// Node Affinity
+				newDeployment.Spec.Template.Spec.Affinity = &corev1.Affinity{
+					NodeAffinity: &corev1.NodeAffinity{
+						RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
+							NodeSelectorTerms: []corev1.NodeSelectorTerm{
+								{
+									MatchExpressions: []corev1.NodeSelectorRequirement{
+										{
+											Key:      "key",
+											Operator: corev1.NodeSelectorOpIn,
+											Values:   []string{"value"},
 										},
 									},
 								},
 							},
 						},
 					},
-				},
+				}
 			}
+
 			return a.Kubernetes.Create(ctx, newDeployment)
 		}
 		return err
 	}
+
 	if app.Spec.App.Replicas != deployment.Spec.Replicas {
 		deployment.Spec.Replicas = app.Spec.App.Replicas
 		return a.Kubernetes.Update(ctx, deployment)
 	}
+
 	return nil
 }
 
