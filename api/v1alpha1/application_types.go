@@ -31,7 +31,8 @@ type AppSpec struct {
 	AppType       string            `json:"appType,omitempty"` // back, front-spa, front-srr
 	Annotations   map[string]string `json:"annotations,omitempty"`
 	ContainerName string            `json:"containerName"`
-	LifeCycle     *v1.Lifecycle		`json:"lifeCycle"`
+	// +optional
+	LifeCycle     *v1.Lifecycle		`json:"lifeCycle,omitempty"`
 }
 
 type PodDisruptionBudgetSpec struct {
