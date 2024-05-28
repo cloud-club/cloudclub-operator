@@ -90,15 +90,21 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 					},
 				},
 			}
+			// If affinity is set, add the existing affinity settings to the new deployment, remove the method to add key-value manually
+			if app.Spec.Scheduler.Affinity != nil {
+				newDeployment.Spec.Template.Spec.Affinity = app.Spec.Scheduler.Affinity
+			}
 			ctrl.SetControllerReference(app, newDeployment, a.Schema)
 			return a.Kubernetes.Create(ctx, newDeployment)
 		}
 		return err
 	}
+
 	if app.Spec.App.Replicas != deployment.Spec.Replicas {
 		deployment.Spec.Replicas = app.Spec.App.Replicas
 		return a.Kubernetes.Update(ctx, deployment)
 	}
+
 	return nil
 }
 
