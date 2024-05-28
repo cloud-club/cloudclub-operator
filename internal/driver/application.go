@@ -89,28 +89,9 @@ func (a *ApplicationClient) UpsertDeployment(ctx context.Context, req ctrl.Reque
 					},
 				},
 			}
-			// affinity 설정이 존재하면 새로운 deployment에 추가
+			// If affinity is set, add the existing affinity settings to the new deployment, remove the method to add key-value manually
 			if app.Spec.Scheduler.Affinity != nil {
 				newDeployment.Spec.Template.Spec.Affinity = app.Spec.Scheduler.Affinity
-			} else {
-				// Node Affinity
-				newDeployment.Spec.Template.Spec.Affinity = &corev1.Affinity{
-					NodeAffinity: &corev1.NodeAffinity{
-						RequiredDuringSchedulingIgnoredDuringExecution: &corev1.NodeSelector{
-							NodeSelectorTerms: []corev1.NodeSelectorTerm{
-								{
-									MatchExpressions: []corev1.NodeSelectorRequirement{
-										{
-											Key:      "key",
-											Operator: corev1.NodeSelectorOpIn,
-											Values:   []string{"value"},
-										},
-									},
-								},
-							},
-						},
-					},
-				}
 			}
 			ctrl.SetControllerReference(app, newDeployment, a.Schema)
 			return a.Kubernetes.Create(ctx, newDeployment)
