@@ -32,7 +32,7 @@ type AppSpec struct {
 	Annotations   map[string]string `json:"annotations,omitempty"`
 	ContainerName string            `json:"containerName"`
 	// +optional
-	LifeCycle     *v1.Lifecycle		`json:"lifeCycle,omitempty"`
+	LifeCycle *v1.Lifecycle `json:"lifeCycle,omitempty"`
 }
 
 type PodDisruptionBudgetSpec struct {
@@ -95,12 +95,12 @@ type SchedulerSpec struct {
 type ApplicationSpec struct {
 	// INSERT ADDITIONAL SPEC FIELDS - desired state of cluster
 	// Important: Run "make" to regenerate code after modifying this file
-	App       AppSpec       `json:"app"`
-	Scheduler SchedulerSpec `json:"scheduler,omitempty"`
-	Probe                         ProbeSpec   `json:"probe,omitempty"`
-	TerminationGracePeriodSeconds *int64      `json:"terminationGracePeriodSeconds,omitempty"`
-	Service                       ServiceSpec `json:"service,omitempty"`
-	Ingress                       IngressSpec `json:"ingress,omitempty"`
+	App                           AppSpec       `json:"app"`
+	Scheduler                     SchedulerSpec `json:"scheduler,omitempty"`
+	Probe                         ProbeSpec     `json:"probe,omitempty"`
+	TerminationGracePeriodSeconds *int64        `json:"terminationGracePeriodSeconds,omitempty"`
+	Service                       ServiceSpec   `json:"service,omitempty"`
+	Ingress                       IngressSpec   `json:"ingress,omitempty"`
 }
 
 // ApplicationStatus defines the observed state of Application

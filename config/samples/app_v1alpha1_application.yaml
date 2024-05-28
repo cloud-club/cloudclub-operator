@@ -14,15 +14,25 @@ spec:
     containerName: nginx
     image: nginx:latest
     containerPort: 80
-    lifecycle:
+    lifeCycle:
       postStart:
         exec:
-          command: ["/bin/sh", "-c", "echo Hello from the postStart handler > /usr/share/message"]
+          command:
+            [
+              "/bin/sh",
+              "-c",
+              "echo Hello from the postStart handler > /usr/share/message",
+            ]
       preStop:
         exec:
-          command: ["/bin/sh","-c","nginx -s quit; while killall -0 nginx; do sleep 1; done"]
+          command:
+            [
+              "/bin/sh",
+              "-c",
+              "nginx -s quit; while killall -0 nginx; do sleep 1; done",
+            ]
 # Node Affinity test - $ apply and $ kubectl label nodes kind-control-plane beta.kubernetes.io/instance-type=large
-#  scheduler: 
+#  scheduler:
 #    affinity:
 #      nodeAffinity:
 #        requiredDuringSchedulingIgnoredDuringExecution:
