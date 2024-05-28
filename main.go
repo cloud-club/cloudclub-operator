@@ -91,7 +91,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	cloudMgr, err := cloudclub.NewManager(mgr.GetClient())
+	cloudMgr, err := cloudclub.NewManager(mgr.GetClient(), mgr.GetScheme())
 
 	if err != nil {
 		setupLog.Error(err, "unable to create cloud-club manager")
