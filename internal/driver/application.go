@@ -7,6 +7,7 @@ import (
 	"github.com/cloud-club/cloudclub-operator/internal/log"
 	v1 "k8s.io/api/apps/v1"
 	corev1 "k8s.io/api/core/v1"
+	networkingv1 "k8s.io/api/networking/v1"
 	"k8s.io/apimachinery/pkg/api/errors"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/apimachinery/pkg/runtime"
@@ -97,6 +98,19 @@ func (a *ApplicationClient) UpsertService(ctx context.Context, req ctrl.Request,
 	return nil
 }
 
+func (a *ApplicationClient) UpsertIngress(ctx context.Context, req ctrl.Request, app *appv1alpha1.Application) error {
+	ingress := &networkingv1.Ingress{}
+	err := a.Kubernetes.Get(ctx, req.NamespacedName, ingress)
+	if err != nil {
+		if errors.IsNotFound(err) {
+			newIngress := a.createNewIngress(app)
+			_ = ctrl.SetControllerReference(app, newIngress, a.Schema)
+			return a.Kubernetes.Create(ctx, newIngress)
+		}
+	}
+	return nil
+}
+
 func (a *ApplicationClient) createNewService(app *appv1alpha1.Application) *corev1.Service {
 	newService := &corev1.Service{
 		Spec: corev1.ServiceSpec{
@@ -146,6 +160,43 @@ func (a *ApplicationClient) createNewDeployment(req ctrl.Request, app *appv1alph
 						{
 							Name:  req.Name,
 							Image: app.Spec.App.Image,
+						},
+					},
+				},
+			},
+		},
+	}
+}
+
+func (a *ApplicationClient) createNewIngress(app *appv1alpha1.Application) *networkingv1.Ingress {
+	pathType := networkingv1.PathTypePrefix
+	return &networkingv1.Ingress{
+		ObjectMeta: metav1.ObjectMeta{
+			Name:      app.Name,
+			Namespace: app.Namespace,
+			Labels: map[string]string{
+				"app": app.Name,
+			},
+		},
+		Spec: networkingv1.IngressSpec{
+			Rules: []networkingv1.IngressRule{
+				{
+					IngressRuleValue: networkingv1.IngressRuleValue{
+						HTTP: &networkingv1.HTTPIngressRuleValue{
+							Paths: []networkingv1.HTTPIngressPath{
+								{
+									Path:     "/",
+									PathType: &pathType,
+									Backend: networkingv1.IngressBackend{
+										Service: &networkingv1.IngressServiceBackend{
+											Name: app.Name,
+											Port: networkingv1.ServiceBackendPort{
+												Number: app.Spec.App.ContainerPort,
+											},
+										},
+									},
+								},
+							},
 						},
 					},
 				},
