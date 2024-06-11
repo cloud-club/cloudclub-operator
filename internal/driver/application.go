@@ -181,6 +181,7 @@ func (a *ApplicationClient) createNewIngress(app *appv1alpha1.Application) *netw
 		Spec: networkingv1.IngressSpec{
 			Rules: []networkingv1.IngressRule{
 				{
+					Host: "example.com",
 					IngressRuleValue: networkingv1.IngressRuleValue{
 						HTTP: &networkingv1.HTTPIngressRuleValue{
 							Paths: []networkingv1.HTTPIngressPath{
