@@ -31,6 +31,7 @@ type AppSpec struct {
 	AppType       string            `json:"appType,omitempty"` // back, front-spa, front-srr
 	Annotations   map[string]string `json:"annotations,omitempty"`
 	ContainerName string            `json:"containerName"`
+	IngressHost   string            `json:"ingressHost"`
 	// +optional
 	LifeCycle *v1.Lifecycle `json:"lifeCycle,omitempty"`
 }
